@@ -22,39 +22,26 @@ import org.eclipse.milo.opcua.stack.core.serialization.codecs.BuiltinDataTypeCod
 import org.eclipse.milo.opcua.stack.core.types.builtin.ByteString;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 
-public class IssuedIdentityToken extends UserIdentityToken {
+public class OAuthIdentityToken extends IssuedIdentityToken {
 
     public static final NodeId TypeId = Identifiers.IssuedIdentityToken;
     public static final NodeId BinaryEncodingId = Identifiers.IssuedIdentityToken_Encoding_DefaultBinary;
     public static final NodeId XmlEncodingId = Identifiers.IssuedIdentityToken_Encoding_DefaultXml;
 
-    protected final ByteString tokenData;
-    protected final String encryptionAlgorithm;
+    protected final ByteString ticketData;
 
-    public IssuedIdentityToken() {
-        super(null);
-        this.tokenData = null;
-        this.encryptionAlgorithm = null;
+    public OAuthIdentityToken() {
+        super();
+        this.ticketData = null;
     }
 
-    public IssuedIdentityToken(String policyId) {
-        super(policyId);
-        this.tokenData = null;
-        this.encryptionAlgorithm = null;
+    public OAuthIdentityToken(String policyId, ByteString ticketData) {
+        super();
+        this.ticketData = ticketData;
     }
 
-    public IssuedIdentityToken(String policyId, ByteString tokenData, String encryptionAlgorithm) {
-        super(policyId);
-        this.tokenData = tokenData;
-        this.encryptionAlgorithm = encryptionAlgorithm;
-    }
-
-    public ByteString getTokenData() {
-        return tokenData;
-    }
-
-    public String getEncryptionAlgorithm() {
-        return encryptionAlgorithm;
+    public ByteString getTicketData() {
+        return ticketData;
     }
 
     @Override
@@ -76,32 +63,29 @@ public class IssuedIdentityToken extends UserIdentityToken {
     public String toString() {
         return MoreObjects.toStringHelper(this)
             .add("PolicyId", policyId)
-            .add("TokenData", tokenData)
-            .add("EncryptionAlgorithm", encryptionAlgorithm)
+            .add("TicketData", ticketData)
             .toString();
     }
 
-    public static class Codec extends BuiltinDataTypeCodec<IssuedIdentityToken> {
+    public static class Codec extends BuiltinDataTypeCodec<OAuthIdentityToken> {
 
         @Override
-        public Class<IssuedIdentityToken> getType() {
-            return IssuedIdentityToken.class;
+        public Class<OAuthIdentityToken> getType() {
+            return OAuthIdentityToken.class;
         }
 
         @Override
-        public IssuedIdentityToken decode(UaDecoder decoder) throws UaSerializationException {
+        public OAuthIdentityToken decode(UaDecoder decoder) throws UaSerializationException {
             String policyId = decoder.readString("PolicyId");
-            ByteString tokenData = decoder.readByteString("TokenData");
-            String encryptionAlgorithm = decoder.readString("EncryptionAlgorithm");
+            ByteString ticketData = decoder.readByteString("TicketData");
 
-            return new IssuedIdentityToken(policyId, tokenData, encryptionAlgorithm);
+            return new OAuthIdentityToken(policyId, ticketData);
         }
 
         @Override
-        public void encode(IssuedIdentityToken value, UaEncoder encoder) throws UaSerializationException {
+        public void encode(OAuthIdentityToken value, UaEncoder encoder) throws UaSerializationException {
             encoder.writeString("PolicyId", value.policyId);
-            encoder.writeByteString("TokenData", value.tokenData);
-            encoder.writeString("EncryptionAlgorithm", value.encryptionAlgorithm);
+            encoder.writeByteString("TicketData", value.ticketData);
         }
     }
 

@@ -22,7 +22,7 @@ import org.eclipse.milo.opcua.stack.core.serialization.codecs.BuiltinDataTypeCod
 import org.eclipse.milo.opcua.stack.core.types.builtin.ByteString;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 
-public class KerberosIdentityToken extends UserIdentityToken {
+public class KerberosIdentityToken extends IssuedIdentityToken {
 
     public static final NodeId TypeId = Identifiers.KerberosIdentityToken;
     public static final NodeId BinaryEncodingId = Identifiers.KerberosIdentityToken_Encoding_DefaultBinary;
@@ -31,7 +31,7 @@ public class KerberosIdentityToken extends UserIdentityToken {
     protected final ByteString ticketData;
 
     public KerberosIdentityToken() {
-        super(null);
+        super();
         this.ticketData = null;
     }
 
@@ -40,16 +40,24 @@ public class KerberosIdentityToken extends UserIdentityToken {
         this.ticketData = ticketData;
     }
 
-    public ByteString getTicketData() { return ticketData; }
+    public ByteString getTicketData() {
+        return ticketData;
+    }
 
     @Override
-    public NodeId getTypeId() { return TypeId; }
+    public NodeId getTypeId() {
+        return TypeId;
+    }
 
     @Override
-    public NodeId getBinaryEncodingId() { return BinaryEncodingId; }
+    public NodeId getBinaryEncodingId() {
+        return BinaryEncodingId;
+    }
 
     @Override
-    public NodeId getXmlEncodingId() { return XmlEncodingId; }
+    public NodeId getXmlEncodingId() {
+        return XmlEncodingId;
+    }
 
     @Override
     public String toString() {
