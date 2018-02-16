@@ -94,12 +94,12 @@ public class ExampleServerWithPasswordDatabase {
         Predicate<UsernameIdentityValidator.AuthenticationChallenge> authPredicate = authenticationChallenge -> {
             File securityTempDir1 = new File(System.getProperty("java.io.tmpdir"), "security");
             if (!securityTempDir1.exists()) {
-                logger.debug("No security temp dir:: " + securityTempDir1);
+                logger.debug("No security temp dir: " + securityTempDir1);
                 return false;
             }
             File userDatabase = securityTempDir.toPath().resolve("Users.db").toFile();
             if (!userDatabase.exists()) {
-                logger.debug("No security temp dir:: " + securityTempDir1);
+                logger.debug("No user database: " + userDatabase);
                 return false;
             }
             logger.info("Database found {}", userDatabase.getAbsolutePath());
