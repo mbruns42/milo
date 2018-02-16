@@ -27,6 +27,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 
 import com.google.common.collect.ImmutableList;
+import de.mkammerer.argon2.Argon2;
+import de.mkammerer.argon2.Argon2Factory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.eclipse.milo.opcua.sdk.server.OpcUaServer;
 import org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig;
@@ -113,8 +115,11 @@ public class ExampleServerWithPasswordDatabase {
                 ResultSet rs    = stmt.executeQuery(sql);
 
                 if (!rs.next()) return false;
-                //TODO hash authenticationChallenge password
-                if (authenticationChallenge.getPassword().equals(rs.getString("Password"))) return true;
+
+                //hash the password and compare it to the hashed password from the database
+                Argon2 argon2 = Argon2Factory.create();
+                String hash = argon2.hash(2, 65536, 1, authenticationChallenge.getPassword());
+                if (hash.equals(rs.getString("Password"))) return true;
 
             } catch (SQLException e) {
                 logger.error("Problem accessing user database", e);
