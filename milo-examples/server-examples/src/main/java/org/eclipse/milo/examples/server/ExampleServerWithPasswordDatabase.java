@@ -106,20 +106,28 @@ public class ExampleServerWithPasswordDatabase {
 
             Connection conn = null;
             try {
-                String url = "jdbc:sqlite:Users.db";
+                String url = "jdbc:sqlite:" + userDatabase.getAbsolutePath();
                 conn = DriverManager.getConnection(url);
                 logger.info("Connected to user database");
 
-                String sql = "SELECT Password FROM Users WHERE Username=" + authenticationChallenge.getUsername();
+                String sql = "SELECT Password FROM Users WHERE Username='" +
+                        authenticationChallenge.getUsername() + "'";
+                logger.info("SQL Statement: " + sql);
                 Statement stmt  = conn.createStatement();
                 ResultSet rs    = stmt.executeQuery(sql);
 
-                if (!rs.next()) return false;
+                if (!rs.next()) {
+                    return false;
+                } else {
+                    logger.info("Found user in database.");
+                }
 
                 //hash the password and compare it to the hashed password from the database
                 Argon2 argon2 = Argon2Factory.create();
-                String hash = argon2.hash(2, 65536, 1, authenticationChallenge.getPassword());
-                if (hash.equals(rs.getString("Password"))) return true;
+                if (argon2.verify(rs.getString("Password"), authenticationChallenge.getPassword())) {
+                    logger.info("Password is correct.");
+                    return true;
+                }
 
             } catch (SQLException e) {
                 logger.error("Problem accessing user database", e);
