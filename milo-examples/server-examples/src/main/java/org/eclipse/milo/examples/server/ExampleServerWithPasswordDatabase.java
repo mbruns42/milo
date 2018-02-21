@@ -17,6 +17,7 @@ import java.io.File;
 import java.security.Security;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -109,13 +110,16 @@ public class ExampleServerWithPasswordDatabase {
                 String url = "jdbc:sqlite:" + userDatabase.getAbsolutePath();
                 conn = DriverManager.getConnection(url);
                 logger.info("Connected to user database");
-
-                String sql = "SELECT Password FROM Users WHERE Username='" +
-                        authenticationChallenge.getUsername() + "'";
+                
+                //https://www.owasp.org/index.php/SQL_Injection_Prevention_Cheat_Sheet
+                //Prepared Statements (with Parameterized Queries)
+                String sql = "SELECT Password FROM Users WHERE Username=?";
+                String custname = authenticationChallenge.getUsername();
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                pstmt.setString( 1, custname); 
+                ResultSet rs = pstmt.executeQuery(sql);
                 logger.info("SQL Statement: " + sql);
-                Statement stmt  = conn.createStatement();
-                ResultSet rs    = stmt.executeQuery(sql);
-
+               
                 if (!rs.next()) {
                     return false;
                 } else {
