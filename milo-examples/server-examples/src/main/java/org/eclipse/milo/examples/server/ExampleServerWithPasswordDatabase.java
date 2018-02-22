@@ -117,7 +117,7 @@ public class ExampleServerWithPasswordDatabase {
                 String custname = authenticationChallenge.getUsername();
                 PreparedStatement pstmt = conn.prepareStatement(sql);
                 pstmt.setString( 1, custname); 
-                ResultSet rs = pstmt.executeQuery(sql);
+                ResultSet rs = pstmt.executeQuery();
                 logger.info("SQL Statement: " + sql);
                
                 if (!rs.next()) {
