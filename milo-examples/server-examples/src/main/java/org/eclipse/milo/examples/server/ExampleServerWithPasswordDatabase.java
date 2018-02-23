@@ -20,7 +20,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
@@ -28,8 +27,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 
 import com.google.common.collect.ImmutableList;
-//https://github.com/P-H-C/phc-winner-argon2
-//https://github.com/phxql/argon2-jvm
 import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -183,6 +180,7 @@ public class ExampleServerWithPasswordDatabase {
 
 
                 //Argon2, the password-hashing function that won the Password Hashing Competition (PHC).
+                //Source: https://github.com/phxql/argon2-jvm
                 Argon2 argon2 = Argon2Factory.create();
                 //verify hashes  the password and compare it to the hashed password from the database
                 //The hash includes the salt. The verify method extracts the salt from the hash and uses that.
