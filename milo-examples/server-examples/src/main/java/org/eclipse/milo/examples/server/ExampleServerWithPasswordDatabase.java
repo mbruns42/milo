@@ -235,7 +235,7 @@ public class ExampleServerWithPasswordDatabase {
         OpcUaServerConfig serverConfig = OpcUaServerConfig.builder()
                 .setApplicationUri(applicationUri)
                 .setApplicationName(LocalizedText.english(ECLIPSE_MILO_OPC_UA_EXAMPLE_SERVER))
-                .setBindPort(12686)
+                .setBindPort(4840)
                 .setBindAddresses(bindAddresses)
                 .setEndpointAddresses(endpointAddresses)
                 .setBuildInfo(
