@@ -51,13 +51,13 @@ import static org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig.USE
 public class ExampleServerWithPasswordDatabase {
 
     //FOLDER NAMES
-    private static final String JAVA_IO_TMPDIR = "java.io.tmpdir";
+    private static final String SECURE_FOLDER = System.getenv("SECURE_FOLDER");
     private static final String SECURITY = "security";
     private static final String PKI = "pki";
 
 
     //OPC UA MILO PROPERTIES
-    private static final String _0_0_0_0 = "0.0.0.0";
+    private static final String BIND_ADDRESS = System.getenv("OPCUA_SERVER_IP");
     private static final String ECLIPSE_MILO_OPC_UA_EXAMPLE_SERVER = "Eclipse Milo OPC UA Example Server";
     private static final String ECLIPSE_MILO_EXAMPLE_SERVER = "eclipse milo example server";
     private static final String ECLIPSE = "eclipse";
@@ -126,7 +126,7 @@ public class ExampleServerWithPasswordDatabase {
     private final OpcUaServer server;
 
     public ExampleServerWithPasswordDatabase() throws Exception {
-        File securityTempDir = new File(System.getProperty(JAVA_IO_TMPDIR), SECURITY);
+        File securityTempDir = new File(System.getProperty(SECURE_FOLDER), SECURITY);
         if (!securityTempDir.exists() && !securityTempDir.mkdirs()) {
             throw new Exception(UNABLE_TO_CREATE_SECURITY_TEMP_DIR + securityTempDir);
         }
@@ -146,7 +146,7 @@ public class ExampleServerWithPasswordDatabase {
         //Build the predicate to check login data
         Predicate<UsernameIdentityValidator.AuthenticationChallenge> authPredicate = authenticationChallenge -> {
             //Check access to the security directory
-            File securityTempDir1 = new File(System.getProperty(JAVA_IO_TMPDIR), SECURITY);
+            File securityTempDir1 = new File(System.getProperty(SECURE_FOLDER), SECURITY);
             if (!securityTempDir1.exists()) {
                 logger.debug(NO_SECURITY_TEMP_DIR + securityTempDir1);
                 return false;
@@ -217,11 +217,11 @@ public class ExampleServerWithPasswordDatabase {
         UsernameIdentityValidator identityValidator = new UsernameIdentityValidator(false, authPredicate);
 
         List<String> bindAddresses = newArrayList();
-        bindAddresses.add(_0_0_0_0);
+        bindAddresses.add(BIND_ADDRESS);
 
         List<String> endpointAddresses = newArrayList();
         endpointAddresses.add(HostnameUtil.getHostname());
-        endpointAddresses.addAll(HostnameUtil.getHostnames(_0_0_0_0));
+        endpointAddresses.addAll(HostnameUtil.getHostnames(BIND_ADDRESS));
 
         // The configured application URI must match the one in the certificate(s)
         String applicationUri = certificateManager.getCertificates().stream()
