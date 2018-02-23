@@ -28,6 +28,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 
 import com.google.common.collect.ImmutableList;
+//https://github.com/P-H-C/phc-winner-argon2
+//https://github.com/phxql/argon2-jvm
 import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -51,6 +53,60 @@ import static org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig.USE
 
 public class ExampleServerWithPasswordDatabase {
 
+
+	
+
+	//FOLDER NAMES
+	private static final String JAVA_IO_TMPDIR = "java.io.tmpdir";
+	private static final String SECURITY = "security";
+	private static final String PKI = "pki";
+	
+	
+	//OPC UA MILO PROPERTIES 
+	private static final String _0_0_0_0 = "0.0.0.0";
+	private static final String ECLIPSE_MILO_OPC_UA_EXAMPLE_SERVER = "Eclipse Milo OPC UA Example Server";
+	private static final String ECLIPSE_MILO_EXAMPLE_SERVER = "eclipse milo example server";
+	private static final String ECLIPSE = "eclipse";
+	private static final String EXAMPLE = "example";
+	private static final String URN_ECLIPSE_MILO_EXAMPLES_SERVER = "urn:eclipse:milo:examples:server:";
+	private static final String PRODUCT_URI="urn:eclipse:milo:example-server";
+
+	
+	
+	//DATABASE PROPERTIES
+	private static final String JDBC_SQLITE = "jdbc:sqlite:";
+	private static final String USERS_DB = "Users.db";
+	private static final String DATABASE_PASSWORD_COLUMN = "Password";
+	private static final String DATABASE_USER_COLUMN = "Username";
+	private static final String DATABASE_NAME="Users";
+	
+	
+	
+	//LOGGER SECURITY DATABASE STATUS
+	private static final String PASSWORD_IS_CORRECT = "Password is correct.";
+	private static final String FOUND_USER_IN_DATABASE = "Found user in database.";
+	
+	//LOGGER DATABASE STATUS
+	private static final String PROBLEM_CLOSING_USER_DATABASE = "Problem closing user database";
+	private static final String PROBLEM_ACCESSING_USER_DATABASE = "Problem accessing user database";
+	private static final String CONNECTED_TO_USER_DATABASE = "Connected to user database";
+	private static final String DATABASE_FOUND = "Database found {}";
+	
+	//LOGGER FOLDER AND FILE STATUS
+	private static final String PKI_DIR = "pki dir: {}";
+	private static final String NO_USER_DATABASE = "No database file: ";
+	private static final String UNABLE_TO_CREATE_SECURITY_TEMP_DIR = "unable to create security temp dir: ";
+	private static final String NO_SECURITY_TEMP_DIR = "No security temp dir: ";
+	private static final String SECURITY_TEMP_DIR = "security temp dir: {}";
+	
+	
+	//LOGGER SQL ERRORS
+	private static final String SQL_STATEMENT = "SQL Statement: ";
+	
+	//LOGGER OPC UA SECURITY ERRORS 
+		private static final String CERTIFICATE_IS_MISSING_THE_APPLICATION_URI = "certificate is missing the application URI";
+
+	
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
     static {
@@ -75,11 +131,11 @@ public class ExampleServerWithPasswordDatabase {
     private final OpcUaServer server;
 
     public ExampleServerWithPasswordDatabase() throws Exception {
-        File securityTempDir = new File(System.getProperty("java.io.tmpdir"), "security");
+        File securityTempDir = new File(System.getProperty(JAVA_IO_TMPDIR), SECURITY);
         if (!securityTempDir.exists() && !securityTempDir.mkdirs()) {
-            throw new Exception("unable to create security temp dir: " + securityTempDir);
+            throw new Exception(UNABLE_TO_CREATE_SECURITY_TEMP_DIR + securityTempDir);
         }
-        logger.info("security temp dir: {}", securityTempDir.getAbsolutePath());
+        logger.info(SECURITY_TEMP_DIR, securityTempDir.getAbsolutePath());
 
         KeyStoreLoader loader = new KeyStoreLoader().load(securityTempDir);
 
@@ -88,53 +144,56 @@ public class ExampleServerWithPasswordDatabase {
             loader.getServerCertificateChain()
         );
 
-        File pkiDir = securityTempDir.toPath().resolve("pki").toFile();
+        File pkiDir = securityTempDir.toPath().resolve(PKI).toFile();
         DirectoryCertificateValidator certificateValidator = new DirectoryCertificateValidator(pkiDir);
-        logger.info("pki dir: {}", pkiDir.getAbsolutePath());
+        logger.info(PKI_DIR, pkiDir.getAbsolutePath());
 
         Predicate<UsernameIdentityValidator.AuthenticationChallenge> authPredicate = authenticationChallenge -> {
-            File securityTempDir1 = new File(System.getProperty("java.io.tmpdir"), "security");
+            File securityTempDir1 = new File(System.getProperty(JAVA_IO_TMPDIR), SECURITY);
             if (!securityTempDir1.exists()) {
-                logger.debug("No security temp dir: " + securityTempDir1);
+                logger.debug(NO_SECURITY_TEMP_DIR + securityTempDir1);
                 return false;
             }
-            File userDatabase = securityTempDir.toPath().resolve("Users.db").toFile();
+            File userDatabase = securityTempDir.toPath().resolve(USERS_DB).toFile();
             if (!userDatabase.exists()) {
-                logger.debug("No user database: " + userDatabase);
+                logger.debug(NO_USER_DATABASE + userDatabase);
                 return false;
             }
-            logger.info("Database found {}", userDatabase.getAbsolutePath());
+            logger.info(DATABASE_FOUND, userDatabase.getAbsolutePath());
 
             Connection conn = null;
             try {
-                String url = "jdbc:sqlite:" + userDatabase.getAbsolutePath();
-                conn = DriverManager.getConnection(url);
-                logger.info("Connected to user database");
+                String databaseUrl = JDBC_SQLITE + userDatabase.getAbsolutePath();
+                conn = DriverManager.getConnection(databaseUrl);
+                logger.info(CONNECTED_TO_USER_DATABASE);
                 
                 //https://www.owasp.org/index.php/SQL_Injection_Prevention_Cheat_Sheet
                 //Prepared Statements (with Parameterized Queries)
-                String sql = "SELECT Password FROM Users WHERE Username=?";
+                String sql = "SELECT "+ DATABASE_PASSWORD_COLUMN + " FROM " + DATABASE_NAME +  " WHERE "+ DATABASE_USER_COLUMN+ "=?";
                 String custname = authenticationChallenge.getUsername();
                 PreparedStatement pstmt = conn.prepareStatement(sql);
                 pstmt.setString( 1, custname); 
                 ResultSet rs = pstmt.executeQuery();
-                logger.info("SQL Statement: " + sql);
+                logger.info(SQL_STATEMENT + sql);
                
                 if (!rs.next()) {
                     return false;
                 } else {
-                    logger.info("Found user in database.");
+                    logger.info(FOUND_USER_IN_DATABASE);
                 }
 
-                //hash the password and compare it to the hashed password from the database
+                          
+                //Argon2, the password-hashing function that won the Password Hashing Competition (PHC).
                 Argon2 argon2 = Argon2Factory.create();
-                if (argon2.verify(rs.getString("Password"), authenticationChallenge.getPassword())) {
-                    logger.info("Password is correct.");
+                //verify hashes  the password and compare it to the hashed password from the database
+               //The hash includes the salt. The verify method extracts the salt from the hash and uses that. (https://github.com/phxql/argon2-jvm/issues/19)
+                if (argon2. verify( rs.getString(DATABASE_PASSWORD_COLUMN), authenticationChallenge.getPassword())) {
+                    logger.info(PASSWORD_IS_CORRECT);
                     return true;
                 }
 
             } catch (SQLException e) {
-                logger.error("Problem accessing user database", e);
+                logger.error(PROBLEM_ACCESSING_USER_DATABASE, e);
                 return false;
 
             } finally {
@@ -143,7 +202,7 @@ public class ExampleServerWithPasswordDatabase {
                         conn.close();
                     }
                 } catch (SQLException ex) {
-                    logger.error("Problem closing user database", ex);
+                    logger.error(PROBLEM_CLOSING_USER_DATABASE, ex);
                 }
             }
 
@@ -153,11 +212,11 @@ public class ExampleServerWithPasswordDatabase {
         UsernameIdentityValidator identityValidator = new UsernameIdentityValidator(false, authPredicate);
 
         List<String> bindAddresses = newArrayList();
-        bindAddresses.add("0.0.0.0");
+        bindAddresses.add(_0_0_0_0);
 
         List<String> endpointAddresses = newArrayList();
         endpointAddresses.add(HostnameUtil.getHostname());
-        endpointAddresses.addAll(HostnameUtil.getHostnames("0.0.0.0"));
+        endpointAddresses.addAll(HostnameUtil.getHostnames(_0_0_0_0));
 
         // The configured application URI must match the one in the certificate(s)
         String applicationUri = certificateManager.getCertificates().stream()
@@ -165,27 +224,27 @@ public class ExampleServerWithPasswordDatabase {
             .map(certificate ->
                 CertificateUtil.getSubjectAltNameField(certificate, CertificateUtil.SUBJECT_ALT_NAME_URI)
                     .map(Object::toString)
-                    .orElseThrow(() -> new RuntimeException("certificate is missing the application URI")))
-            .orElse("urn:eclipse:milo:examples:server:" + UUID.randomUUID());
+                    .orElseThrow(() -> new RuntimeException(CERTIFICATE_IS_MISSING_THE_APPLICATION_URI)))
+            .orElse(URN_ECLIPSE_MILO_EXAMPLES_SERVER + UUID.randomUUID());
 
         OpcUaServerConfig serverConfig = OpcUaServerConfig.builder()
             .setApplicationUri(applicationUri)
-            .setApplicationName(LocalizedText.english("Eclipse Milo OPC UA Example Server"))
+            .setApplicationName(LocalizedText.english(ECLIPSE_MILO_OPC_UA_EXAMPLE_SERVER))
             .setBindPort(12686)
             .setBindAddresses(bindAddresses)
             .setEndpointAddresses(endpointAddresses)
             .setBuildInfo(
                 new BuildInfo(
-                    "urn:eclipse:milo:example-server",
-                    "eclipse",
-                    "eclipse milo example server",
+                	PRODUCT_URI,
+                    ECLIPSE,
+                    ECLIPSE_MILO_EXAMPLE_SERVER,
                     OpcUaServer.SDK_VERSION,
                     "", DateTime.now()))
             .setCertificateManager(certificateManager)
             .setCertificateValidator(certificateValidator)
             .setIdentityValidator(identityValidator)
-            .setProductUri("urn:eclipse:milo:example-server")
-            .setServerName("example")
+            .setProductUri(PRODUCT_URI)
+            .setServerName(EXAMPLE)
             .setSecurityPolicies(
                 EnumSet.of(
                     SecurityPolicy.None,
