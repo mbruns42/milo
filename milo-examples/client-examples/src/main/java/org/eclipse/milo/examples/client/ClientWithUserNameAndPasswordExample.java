@@ -31,7 +31,10 @@ import org.slf4j.LoggerFactory;
 
 public class ClientWithUserNameAndPasswordExample implements ClientExample {
 
-    public static void main(String[] args) throws Exception {
+    private static final String USERPASSWORD = "userpassword";
+	private static final String USER = "User";
+
+	public static void main(String[] args) throws Exception {
         ClientWithUserNameAndPasswordExample example = new ClientWithUserNameAndPasswordExample();
 
         new ClientExampleRunner(example, false).run();
@@ -72,6 +75,6 @@ public class ClientWithUserNameAndPasswordExample implements ClientExample {
 
     @Override
     public IdentityProvider getIdentityProvider() {
-        return new UsernameProvider("User", "userpassword");
+        return new UsernameProvider(USER, USERPASSWORD);
     }
 }
