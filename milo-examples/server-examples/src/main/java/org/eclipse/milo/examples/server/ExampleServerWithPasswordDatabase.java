@@ -55,7 +55,6 @@ public class ExampleServerWithPasswordDatabase {
     private static final String SECURITY = "security";
     private static final String PKI = "pki";
 
-
     //OPC UA MILO PROPERTIES
     private static final String _0_0_0_0 = "0.0.0.0";
     private static final String ECLIPSE_MILO_OPC_UA_EXAMPLE_SERVER = "Eclipse Milo OPC UA Example Server";
@@ -65,16 +64,12 @@ public class ExampleServerWithPasswordDatabase {
     private static final String URN_ECLIPSE_MILO_EXAMPLES_SERVER = "urn:eclipse:milo:examples:server:";
     private static final String PRODUCT_URI = "urn:eclipse:milo:example-server";
 
-
-
     //DATABASE PROPERTIES
     private static final String JDBC_SQLITE = "jdbc:sqlite:";
     private static final String USERS_DB = "Users.db";
     private static final String DATABASE_PASSWORD_COLUMN = "Password";
     private static final String DATABASE_USER_COLUMN = "Username";
     private static final String DATABASE_NAME = "Users";
-
-
 
     //LOGGER SECURITY DATABASE STATUS
     private static final String PASSWORD_IS_CORRECT = "Password is correct.";
@@ -92,7 +87,6 @@ public class ExampleServerWithPasswordDatabase {
     private static final String UNABLE_TO_CREATE_SECURITY_TEMP_DIR = "unable to create security temp dir: ";
     private static final String NO_SECURITY_TEMP_DIR = "No security temp dir: ";
     private static final String SECURITY_TEMP_DIR = "security temp dir: {}";
-
 
     //LOGGER SQL ERRORS
     private static final String SQL_STATEMENT = "SQL Statement: ";
