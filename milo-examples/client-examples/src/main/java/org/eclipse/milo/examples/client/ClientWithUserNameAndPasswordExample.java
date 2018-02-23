@@ -32,8 +32,9 @@ import org.slf4j.LoggerFactory;
 public class ClientWithUserNameAndPasswordExample implements ClientExample {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private static final String EXAMPLE_USERNAME = "User";
-    private static final String EXAMPLE_PASSWORD = "userpassword";
+    private static final String EXAMPLE_USERNAME = System.getenv("USERNAME");
+    private static final String EXAMPLE_PASSWORD = System.getenv("PASSWORD");
+    private static final String ENDPOINT_URL = System.getenv("ENDPOINT_URL");
 
     public static void main(String[] args) throws Exception {
         ClientWithUserNameAndPasswordExample example = new ClientWithUserNameAndPasswordExample();
@@ -75,5 +76,10 @@ public class ClientWithUserNameAndPasswordExample implements ClientExample {
     @Override
     public IdentityProvider getIdentityProvider() {
         return new UsernameProvider(EXAMPLE_USERNAME, EXAMPLE_PASSWORD);
+    }
+
+    @Override
+    public String getEndpointUrl() {
+        return ENDPOINT_URL;
     }
 }
