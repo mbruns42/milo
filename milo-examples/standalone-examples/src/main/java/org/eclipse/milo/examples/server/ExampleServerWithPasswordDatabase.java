@@ -151,6 +151,7 @@ public class ExampleServerWithPasswordDatabase {
                 logger.debug(NO_SECURITY_TEMP_DIR + secureDirInValidator);
                 return false;
             }
+            logger.debug(SECURITY_TEMP_DIR, secureDirInValidator.getAbsolutePath());
             //Check if the user database exists in the security directory
             File userDatabase = secureDirInValidator.toPath().resolve(USERS_DB).toFile();
             if (!userDatabase.exists()) {
