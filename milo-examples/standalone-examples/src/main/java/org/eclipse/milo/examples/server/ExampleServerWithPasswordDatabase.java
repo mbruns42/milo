@@ -146,13 +146,13 @@ public class ExampleServerWithPasswordDatabase {
         //Build the predicate to check login data
         Predicate<UsernameIdentityValidator.AuthenticationChallenge> authPredicate = authenticationChallenge -> {
             //Check access to the security directory
-            File securityTempDir1 = new File(System.getProperty(SECURE_FOLDER), SECURITY);
-            if (!securityTempDir1.exists()) {
-                logger.debug(NO_SECURITY_TEMP_DIR + securityTempDir1);
+            File secureDirInValidator = new File(System.getProperty(SECURE_FOLDER), SECURITY);
+            if (!secureDirInValidator.exists()) {
+                logger.debug(NO_SECURITY_TEMP_DIR + secureDirInValidator);
                 return false;
             }
             //Check if the user database exists in the security directory
-            File userDatabase = securityTempDir.toPath().resolve(USERS_DB).toFile();
+            File userDatabase = secureDirInValidator.toPath().resolve(USERS_DB).toFile();
             if (!userDatabase.exists()) {
                 logger.debug(NO_USER_DATABASE + userDatabase.getAbsolutePath());
                 return false;
