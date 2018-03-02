@@ -141,7 +141,7 @@ public class ExampleServerWithPasswordDatabase {
 
         File pkiDir = securityTempDir.toPath().resolve(PKI).toFile();
         DirectoryCertificateValidator certificateValidator = new DirectoryCertificateValidator(pkiDir);
-        logger.info(PKI_DIR, pkiDir.getAbsolutePath());
+        logger.info(PKI_DIR + pkiDir.getAbsolutePath());
 
         //Build the predicate to check login data
         Predicate<UsernameIdentityValidator.AuthenticationChallenge> authPredicate = authenticationChallenge -> {
@@ -151,7 +151,7 @@ public class ExampleServerWithPasswordDatabase {
                 logger.debug(NO_SECURITY_TEMP_DIR + secureDirInValidator);
                 return false;
             }
-            logger.debug(SECURITY_TEMP_DIR, secureDirInValidator.getAbsolutePath());
+            logger.debug(SECURITY_TEMP_DIR + secureDirInValidator.getAbsolutePath());
             //Check if the user database exists in the security directory
             File userDatabase = secureDirInValidator.toPath().resolve(USERS_DB).toFile();
             if (!userDatabase.exists()) {
