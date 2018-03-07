@@ -88,7 +88,7 @@ public class ExampleServerWithPasswordDatabase {
 
     //LOGGER FOLDER AND FILE STATUS
     private static final String PKI_DIR = "pki dir: {}";
-    private static final String NO_USER_DATABASE = "No database file: ";
+    private static final String NO_USER_DATABASE = "No user database file: ";
     private static final String UNABLE_TO_CREATE_SECURITY_TEMP_DIR = "unable to create security temp dir: ";
     private static final String NO_SECURITY_TEMP_DIR = "No security temp dir: ";
     private static final String SECURITY_TEMP_DIR = "security temp dir: {}";
