@@ -72,7 +72,6 @@ public class ExampleServerWithPasswordDatabase {
 
     // FOLDER NAMES
     private static final String SECURE_FOLDER = System.getenv("SECURE_FOLDER");
-    private static final String SECURITY = "security";
     private static final String PKI_DIR = "pki";
     private static final String BASE_DB_DIR = "db";
     private static final String TRUSTED_DB_DIR = "trusted";
@@ -208,7 +207,7 @@ public class ExampleServerWithPasswordDatabase {
     }
 
     private void createDatabaseDirectories() throws Exception {
-        securityTempDir = new File(System.getProperty(SECURE_FOLDER), SECURITY);
+        securityTempDir = new File(System.getProperty(SECURE_FOLDER));
         if (!securityTempDir.exists() && !securityTempDir.mkdirs()) {
             throw new Exception(UNABLE_TO_CREATE_SECURITY_TEMP_DIR + securityTempDir.getAbsolutePath());
         }
