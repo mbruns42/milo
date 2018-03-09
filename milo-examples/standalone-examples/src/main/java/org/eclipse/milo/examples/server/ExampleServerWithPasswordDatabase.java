@@ -386,9 +386,6 @@ public class ExampleServerWithPasswordDatabase {
         List<String> bindAddresses = newArrayList();
         bindAddresses.add(BIND_ADDRESS);
 
-        List<String> endpointAddresses = newArrayList();
-        endpointAddresses.addAll(HostnameUtil.getHostnames(BIND_ADDRESS));
-
         // The configured application URI must match the one in the certificate(s)
         String applicationUri = certificateManager.getCertificates().stream().findFirst()
                 .map(cert -> CertificateUtil
@@ -401,7 +398,6 @@ public class ExampleServerWithPasswordDatabase {
                 .setApplicationName(LocalizedText.english(ECLIPSE_MILO_OPC_UA_EXAMPLE_SERVER))
                 .setBindPort(4840)
                 .setBindAddresses(bindAddresses)
-                .setEndpointAddresses(endpointAddresses)
                 .setBuildInfo(
                         new BuildInfo(
                                 PRODUCT_URI,
