@@ -15,7 +15,10 @@ package org.eclipse.milo.examples.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
 import java.security.Security;
+import java.security.cert.X509Certificate;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -28,6 +31,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableList;
 import de.mkammerer.argon2.Argon2;
@@ -45,6 +49,8 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.structured.BuildInfo;
 import org.eclipse.milo.opcua.stack.core.util.CertificateUtil;
 import org.eclipse.milo.opcua.stack.core.util.CryptoRestrictions;
+import org.eclipse.milo.opcua.stack.core.util.SelfSignedCertificateBuilder;
+import org.eclipse.milo.opcua.stack.core.util.SelfSignedCertificateGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,6 +121,10 @@ public class ExampleServerWithPasswordDatabase {
     private static final String CERTIFICATE_IS_MISSING_THE_APPLICATION_URI = "certificate is missing " +
             "the application URI";
 
+    // HOSTNAME UTILITIES
+    private static final Pattern IP_ADDR_PATTERN = Pattern.compile(
+            "^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
+
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     static {
@@ -134,18 +144,6 @@ public class ExampleServerWithPasswordDatabase {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> future.complete(null)));
 
         future.get();
-    }
-
-    public File getTrustedDbDir() {
-        return trustedDbDir;
-    }
-
-    public File getBaseDbDir() {
-        return baseDbDir;
-    }
-
-    public File getRejectedDbDir() {
-        return rejectedDbDir;
     }
 
     private final OpcUaServer server;
@@ -261,38 +259,6 @@ public class ExampleServerWithPasswordDatabase {
         trustedUserDatabase = trustedDbDir.toPath().resolve(USERS_DB).toFile();
     }
 
-    private void moveUsersFromRejectedDbToTrustedDb(List<String> usernames) {
-        usernames.forEach(user -> {
-            try {
-                moveUserFromRejectedDbToTrustedDb(user);
-            } catch (SQLException e) {
-                logger.info(e.toString());
-            }
-        });
-
-    }
-
-    private void moveUserFromRejectedDbToTrustedDb(String username) throws SQLException {
-        Connection trustedConnection = null;
-        Connection rejectedConnnection = null;
-
-        String trustedDatabaseUrl = JDBC_SQLITE + trustedUserDatabase.getAbsolutePath();
-        String rejectedDatabaseUrl = JDBC_SQLITE + rejectedUserDatabase.getAbsolutePath();
-        trustedConnection = DriverManager.getConnection(trustedDatabaseUrl);
-        rejectedConnnection = DriverManager.getConnection(rejectedDatabaseUrl);
-
-        ResultSet rs = selectUserFromDatabase(rejectedConnnection, username);
-
-        if (rs == null) {
-            return;
-        }
-
-        String hashedPassword = rs.getString(DATABASE_PASSWORD_COLUMN);
-        insertUserIntoDatabase(trustedConnection, username, hashedPassword, true);
-        deleteUserFromDatabase(rejectedConnnection, username);
-
-    }
-
     /**
      * OPC UA Server with local Trusted and Rejected User Database
      * Rejected users are stored within the Rejected Database if the Client login attempt fails
@@ -303,14 +269,45 @@ public class ExampleServerWithPasswordDatabase {
 
         createDatabaseDirectories();
 
+        //Generate self-signed certificate
+        KeyPair keyPair = null;
+        try {
+            keyPair = SelfSignedCertificateGenerator.generateRsaKeyPair(2048);
+        } catch (NoSuchAlgorithmException n) {
+            logger.error("Could not generate RSA Key Pair.", n);
+            System.exit(1);
+        }
 
-        // List<String> trustfulUsersFromRejectedDb = Arrays.asList("User1", "User2");
-        // moveUsersFromRejectedDbToTrustedDb(trustfulUsersFromRejectedDb);
+        SelfSignedCertificateBuilder builder = new SelfSignedCertificateBuilder(keyPair)
+                .setCommonName("Eclipse Milo Example Client")
+                .setOrganization("digitalpetri")
+                .setOrganizationalUnit("dev")
+                .setLocalityName("Folsom")
+                .setStateName("CA")
+                .setCountryCode("US")
+                .setApplicationUri("urn:eclipse:milo:examples:client");
 
-        KeyStoreLoader loader = new KeyStoreLoader().load(securityTempDir);
+        // Get as many hostnames and IP addresses as we can listed in the certificate.
+        for (String hostname : HostnameUtil.getHostnames(BIND_ADDRESS)) {
+            if (IP_ADDR_PATTERN.matcher(hostname).matches()) {
+                builder.addIpAddress(hostname);
+            } else {
+                builder.addDnsName(hostname);
+            }
+        }
 
-        DefaultCertificateManager certificateManager = new DefaultCertificateManager(loader.getServerKeyPair(),
-                loader.getServerCertificateChain());
+        X509Certificate certificate = null;
+        try {
+            certificate = builder.build();
+        } catch (Exception e) {
+            logger.error("Could not build certificate.", e);
+            System.exit(1);
+        }
+
+        DefaultCertificateManager certificateManager = new DefaultCertificateManager(
+                keyPair,
+                certificate
+        );
 
         File pkiDir = securityTempDir.toPath().resolve(PKI_DIR).toFile();
         DirectoryCertificateValidator certificateValidator = new DirectoryCertificateValidator(pkiDir);
@@ -411,8 +408,8 @@ public class ExampleServerWithPasswordDatabase {
 
         // The configured application URI must match the one in the certificate(s)
         String applicationUri = certificateManager.getCertificates().stream().findFirst()
-                .map(certificate -> CertificateUtil
-                        .getSubjectAltNameField(certificate, CertificateUtil.SUBJECT_ALT_NAME_URI).map(Object::toString)
+                .map(cert -> CertificateUtil
+                        .getSubjectAltNameField(cert, CertificateUtil.SUBJECT_ALT_NAME_URI).map(Object::toString)
                         .orElseThrow(() -> new RuntimeException(CERTIFICATE_IS_MISSING_THE_APPLICATION_URI)))
                 .orElse(URN_ECLIPSE_MILO_EXAMPLES_SERVER + UUID.randomUUID());
 
