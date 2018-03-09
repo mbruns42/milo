@@ -407,7 +407,6 @@ public class ExampleServerWithPasswordDatabase {
         bindAddresses.add(BIND_ADDRESS);
 
         List<String> endpointAddresses = newArrayList();
-        endpointAddresses.add(HostnameUtil.getHostname());
         endpointAddresses.addAll(HostnameUtil.getHostnames(BIND_ADDRESS));
 
         // The configured application URI must match the one in the certificate(s)
