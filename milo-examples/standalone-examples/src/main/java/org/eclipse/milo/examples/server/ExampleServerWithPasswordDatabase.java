@@ -208,23 +208,6 @@ public class ExampleServerWithPasswordDatabase {
         return result;
     }
 
-    private void deleteUserFromDatabase(Connection connection, String username) {
-        try {
-            // https://www.owasp.org/index.php/SQL_Injection_Prevention_Cheat_Sheet
-            // Prepared Statements (with Parameterized Queries)
-            String sql = "DELETE FROM " + DATABASE_NAME + " WHERE " + DATABASE_USER_COLUMN + "=?";
-            PreparedStatement pstmt = connection.prepareStatement(sql);
-            pstmt.setString(1, username);
-
-            // Execute query looking for the user
-            pstmt.executeUpdate();
-            logger.info(SQL_STATEMENT + sql);
-        } catch (SQLException e) {
-            logger.info("not successfull deletion");
-            e.printStackTrace();
-        }
-    }
-
     private void createDatabaseDirectories() throws Exception {
         securityTempDir = new File(System.getProperty(SECURE_FOLDER), SECURITY);
         if (!securityTempDir.exists() && !securityTempDir.mkdirs()) {
@@ -451,16 +434,7 @@ public class ExampleServerWithPasswordDatabase {
             idx -> new ExampleNamespace(server, idx));
     }
 
-    public OpcUaServer getServer() {
-        return server;
-    }
-
     public CompletableFuture<OpcUaServer> startup() {
         return server.startup();
     }
-
-    public CompletableFuture<OpcUaServer> shutdown() {
-        return server.shutdown();
-    }
-
 }
