@@ -198,7 +198,6 @@ public class ExampleServerWithPasswordDatabase {
             result = pstmt.executeQuery();
             logger.info(SQL_STATEMENT + sql);
             if (result.isClosed() || !result.next()) {
-                result = null;
                 logger.info("user not found");
             }
         } catch (SQLException e) {
