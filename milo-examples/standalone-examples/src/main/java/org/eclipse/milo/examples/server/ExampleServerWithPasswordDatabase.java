@@ -99,9 +99,9 @@ public class ExampleServerWithPasswordDatabase {
 
     // LOGGER DATABASE STATUS
     private static final String SUCCESSFULLY_INSERTED_USER_INTO_TABLE = "Successfully inserted user into table";
-    private static final String SUCCESSFULLY_CREATED_TABLE = "Successfully created table";
-    private static final String NOT_SUCCESSFULLY_CREATED_TABLE = "Not successfully created table";
-    private static final String SUCCESSFULLY_CREATED_DATABASE = "Successfully created database:";
+    private static final String SUCCESSFULLY_CREATED_TABLE = "Successfully created table if it did not exist";
+    private static final String NOT_SUCCESSFULLY_CREATED_TABLE = "Could not create table";
+    private static final String SUCCESSFULLY_CREATED_DATABASE = "Successfully created connection to a database:";
     private static final String PROBLEM_CLOSING_USER_DATABASE = "Problem closing user database";
     private static final String PROBLEM_ACCESSING_USER_DATABASE = "Problem accessing user database";
     private static final String CONNECTED_TO_USER_DATABASE = "Connected to user database";
