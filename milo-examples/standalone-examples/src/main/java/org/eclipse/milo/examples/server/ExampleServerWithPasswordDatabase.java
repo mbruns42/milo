@@ -306,7 +306,7 @@ public class ExampleServerWithPasswordDatabase {
             logger.info(DB_DIR_LOG, baseDbDir.getAbsolutePath());
 
             Connection trustedConnection = null;
-            Connection rejectedConnnection = null;
+            Connection rejectedConnection = null;
 
             try {
 
@@ -329,17 +329,17 @@ public class ExampleServerWithPasswordDatabase {
 
                     try {
                         String rejectedDatabaseUrl = JDBC_SQLITE + rejectedUserDatabase.getAbsolutePath();
-                        rejectedConnnection = DriverManager.getConnection(rejectedDatabaseUrl);
+                        rejectedConnection = DriverManager.getConnection(rejectedDatabaseUrl);
                         logger.info(CONNECTED_TO_REJECTED_USER_DATABASE);
-                        if (rejectedConnnection != null) {
-                            DatabaseMetaData meta = rejectedConnnection.getMetaData();
+                        if (rejectedConnection != null) {
+                            DatabaseMetaData meta = rejectedConnection.getMetaData();
                             logger.info(SUCCESSFULLY_CREATED_DATABASE + meta.getDriverName());
                         } else {
                             return false;
                         }
 
-                        createTable(rejectedConnnection);
-                        insertUserIntoDatabase(rejectedConnnection, authenticationChallenge.getUsername(),
+                        createTable(rejectedConnection);
+                        insertUserIntoDatabase(rejectedConnection, authenticationChallenge.getUsername(),
                             authenticationChallenge.getPassword(), false);
 
                     } catch (SQLException se) {
@@ -368,8 +368,8 @@ public class ExampleServerWithPasswordDatabase {
                     if (trustedConnection != null) {
                         trustedConnection.close();
                     }
-                    if (rejectedConnnection != null) {
-                        rejectedConnnection.close();
+                    if (rejectedConnection != null) {
+                        rejectedConnection.close();
                     }
                 } catch (SQLException ex) {
                     logger.error(PROBLEM_CLOSING_USER_DATABASE, ex);
