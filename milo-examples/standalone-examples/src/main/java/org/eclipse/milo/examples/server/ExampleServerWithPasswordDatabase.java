@@ -207,7 +207,7 @@ public class ExampleServerWithPasswordDatabase {
     }
 
     private void createDatabaseDirectories() throws Exception {
-        securityTempDir = new File(System.getProperty(SECURE_FOLDER));
+        securityTempDir = new File(SECURE_FOLDER);
         if (!securityTempDir.exists() && !securityTempDir.mkdirs()) {
             throw new Exception(UNABLE_TO_CREATE_SECURITY_TEMP_DIR + securityTempDir.getAbsolutePath());
         }
