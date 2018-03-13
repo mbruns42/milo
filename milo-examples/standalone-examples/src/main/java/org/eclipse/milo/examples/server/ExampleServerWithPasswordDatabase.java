@@ -104,7 +104,8 @@ public class ExampleServerWithPasswordDatabase {
     private static final String SUCCESSFULLY_CREATED_DATABASE = "Successfully created connection to a database:";
     private static final String PROBLEM_CLOSING_USER_DATABASE = "Problem closing user database";
     private static final String PROBLEM_ACCESSING_USER_DATABASE = "Problem accessing user database";
-    private static final String CONNECTED_TO_USER_DATABASE = "Connected to user database";
+    private static final String CONNECTED_TO_TRUSTED_USER_DATABASE = "Connected to trusted user database";
+    private static final String CONNECTED_TO_REJECTED_USER_DATABASE = "Connected to rejected user database";
 
     // LOGGER FOLDER AND FILE STATUS
     private static final String PKI_DIR_LOG = "pki dir: {}";
@@ -312,7 +313,7 @@ public class ExampleServerWithPasswordDatabase {
                 String trustedDatabaseUrl = JDBC_SQLITE + trustedUserDatabase.getAbsolutePath();
                 trustedConnection = DriverManager.getConnection(trustedDatabaseUrl);
 
-                logger.info(CONNECTED_TO_USER_DATABASE);
+                logger.info(CONNECTED_TO_TRUSTED_USER_DATABASE);
                 if (trustedConnection != null) {
                     DatabaseMetaData meta = trustedConnection.getMetaData();
                     logger.info(SUCCESSFULLY_CREATED_DATABASE + meta.getDriverName());
@@ -321,7 +322,6 @@ public class ExampleServerWithPasswordDatabase {
                 }
 
                 createTable(trustedConnection);
-                logger.info(CONNECTED_TO_USER_DATABASE);
 
                 ResultSet rs = selectUserFromDatabase(trustedConnection, authenticationChallenge.getUsername());
 
@@ -330,7 +330,7 @@ public class ExampleServerWithPasswordDatabase {
                     try {
                         String rejectedDatabaseUrl = JDBC_SQLITE + rejectedUserDatabase.getAbsolutePath();
                         rejectedConnnection = DriverManager.getConnection(rejectedDatabaseUrl);
-                        logger.info(CONNECTED_TO_USER_DATABASE);
+                        logger.info(CONNECTED_TO_REJECTED_USER_DATABASE);
                         if (rejectedConnnection != null) {
                             DatabaseMetaData meta = rejectedConnnection.getMetaData();
                             logger.info(SUCCESSFULLY_CREATED_DATABASE + meta.getDriverName());
