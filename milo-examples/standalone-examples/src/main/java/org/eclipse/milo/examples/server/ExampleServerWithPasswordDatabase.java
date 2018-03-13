@@ -197,7 +197,7 @@ public class ExampleServerWithPasswordDatabase {
             // Execute query looking for the user specified in the authenticationChallenge
             result = pstmt.executeQuery();
             logger.info(SQL_STATEMENT + sql);
-            if (result.isClosed() || !result.next()) {
+            if (result.isClosed() || !result.isBeforeFirst()) {
                 logger.info("user not found");
             }
         } catch (SQLException e) {
