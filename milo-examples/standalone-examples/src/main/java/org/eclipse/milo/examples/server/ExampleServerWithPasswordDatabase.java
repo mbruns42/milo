@@ -410,8 +410,6 @@ public class ExampleServerWithPasswordDatabase {
                 .setServerName(EXAMPLE)
                 .setSecurityPolicies(
                         EnumSet.of(
-                                SecurityPolicy.None,
-                                SecurityPolicy.Basic128Rsa15,
                                 SecurityPolicy.Basic256,
                                 SecurityPolicy.Basic256Sha256,
                                 SecurityPolicy.Aes128_Sha256_RsaOaep,

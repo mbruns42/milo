@@ -71,7 +71,7 @@ public class ClientWithUserNameAndPasswordExample {
     }
 
     private OpcUaClient createClient() throws Exception {
-        SecurityPolicy securityPolicy = SecurityPolicy.None;
+        SecurityPolicy securityPolicy = SecurityPolicy.Basic256Sha256;
 
         EndpointDescription[] endpoints;
         try {
