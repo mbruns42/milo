@@ -62,7 +62,7 @@ public class ClientWithUserNameAndPasswordExample {
 
     private final CompletableFuture<OpcUaClient> future = new CompletableFuture<>();
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         if (EXAMPLE_USERNAME == null || EXAMPLE_PASSWORD == null) {
             throw new RuntimeException("Username and/or password for example could not be read");
         }
