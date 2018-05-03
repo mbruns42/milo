@@ -26,6 +26,8 @@ import java.util.regex.Pattern;
 import com.google.common.collect.ImmutableList;
 import org.eclipse.milo.opcua.sdk.server.OpcUaServer;
 import org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig;
+import org.eclipse.milo.opcua.sdk.server.identity.CompositeValidator;
+import org.eclipse.milo.opcua.sdk.server.identity.UsernameIdentityValidator;
 import org.eclipse.milo.opcua.sdk.server.identity.X509IdentityValidator;
 import org.eclipse.milo.opcua.sdk.server.util.HostnameUtil;
 import org.eclipse.milo.opcua.stack.core.application.DefaultCertificateManager;
@@ -143,6 +145,21 @@ public class SecureServerStandalone {
 
         X509IdentityValidator x509identityValidator = new X509IdentityValidator(c -> true);
 
+        UsernameIdentityValidator usernameIdentityValidator = new UsernameIdentityValidator(
+                false,
+                authChallenge -> {
+                    String username = authChallenge.getUsername();
+                    String password = authChallenge.getPassword();
+
+                    boolean userOk = "user".equals(username) && "password1".equals(password);
+                    boolean adminOk = "admin".equals(username) && "password2".equals(password);
+
+                    return userOk || adminOk;
+                }
+        );
+
+        CompositeValidator identityValidator = new CompositeValidator(usernameIdentityValidator, x509identityValidator);
+
         OpcUaServerConfig serverConfig = OpcUaServerConfig.builder()
             .setApplicationUri(APPLICATION_URI)
             .setApplicationName(LocalizedText.english(APPLICATION_NAME))
@@ -158,7 +175,7 @@ public class SecureServerStandalone {
                     "", DateTime.now()))
             .setCertificateManager(certificateManager)
             .setCertificateValidator(certificateValidator)
-            .setIdentityValidator(x509identityValidator)
+            .setIdentityValidator(identityValidator)
             .setProductUri("urn:eclipse:milo:example-server")
             .setSecurityPolicies(
                 EnumSet.of(
