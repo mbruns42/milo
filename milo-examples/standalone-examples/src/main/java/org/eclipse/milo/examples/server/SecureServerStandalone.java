@@ -18,6 +18,7 @@ import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
@@ -53,7 +54,9 @@ public class SecureServerStandalone {
     private static final Pattern IP_ADDR_PATTERN = Pattern.compile(
             "^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
 
-    private static final String ip = System.getenv("OPCUA_SERVER_IP");
+    private static final String IP = "131.234.44.33";
+
+    private static final int PORT = 4840;
 
     private static final Logger logger = LoggerFactory.getLogger(SecureServerStandalone.class);
 
@@ -88,7 +91,7 @@ public class SecureServerStandalone {
     private SecureServerStandalone() {
         CryptoRestrictions.remove();
 
-        File securityTempDir = new File(System.getenv("OPCUA_CERT_DIR"), "security");
+        File securityTempDir = new File(System.getProperty("java.io.tmpdir"), "security");
 
         logger.info("security temp dir: {}", securityTempDir.getAbsolutePath());
 
@@ -109,17 +112,19 @@ public class SecureServerStandalone {
                 .setStateName("CA")
                 .setCountryCode("US")
                 .setApplicationUri("urn:eclipse:milo:examples:client")
-                .addDnsName("localhost")
-                .addIpAddress("127.0.0.1");
+                .addIpAddress(IP);
 
         // Get as many hostnames and IP addresses as we can listed in the certificate.
-        for (String hostname : HostnameUtil.getHostnames("0.0.0.0")) {
+        for (String hostname : HostnameUtil.getHostnames(IP)) {
             if (IP_ADDR_PATTERN.matcher(hostname).matches()) {
                 builder.addIpAddress(hostname);
             } else {
                 builder.addDnsName(hostname);
             }
         }
+        List<String> endpointAddresses = newArrayList();
+        endpointAddresses.addAll(HostnameUtil.getHostnames(IP));
+        logger.info("Hostnames {}", HostnameUtil.getHostnames(IP));
 
         X509Certificate certificate = null;
         try {
@@ -141,8 +146,9 @@ public class SecureServerStandalone {
         OpcUaServerConfig serverConfig = OpcUaServerConfig.builder()
             .setApplicationUri(APPLICATION_URI)
             .setApplicationName(LocalizedText.english(APPLICATION_NAME))
-            .setBindAddresses(newArrayList(ip))
-            .setBindPort(4840)
+            .setBindAddresses(newArrayList(IP))
+            .setEndpointAddresses(endpointAddresses)
+            .setBindPort(PORT)
             .setBuildInfo(
                 new BuildInfo(
                     "urn:eclipse:milo:example-server",
