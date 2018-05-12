@@ -53,7 +53,9 @@ public class SecureServerStandalone {
     private static final Pattern IP_ADDR_PATTERN = Pattern.compile(
             "^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
 
-    private static final String ip = System.getenv("OPCUA_SERVER_IP");
+    private static final String ENDPOINT_IP = System.getenv("OPCUA_SERVER_IP");
+    
+    private static final String BIND_IP = "0.0.0.0";
 
     private static final Logger logger = LoggerFactory.getLogger(SecureServerStandalone.class);
 
@@ -109,11 +111,10 @@ public class SecureServerStandalone {
                 .setStateName("CA")
                 .setCountryCode("US")
                 .setApplicationUri("urn:eclipse:milo:examples:client")
-                .addDnsName("localhost")
-                .addIpAddress("127.0.0.1");
+                .addDnsName("localhost");
 
         // Get as many hostnames and IP addresses as we can listed in the certificate.
-        for (String hostname : HostnameUtil.getHostnames("0.0.0.0")) {
+        for (String hostname : HostnameUtil.getHostnames(BIND_IP)) {
             if (IP_ADDR_PATTERN.matcher(hostname).matches()) {
                 builder.addIpAddress(hostname);
             } else {
@@ -141,7 +142,8 @@ public class SecureServerStandalone {
         OpcUaServerConfig serverConfig = OpcUaServerConfig.builder()
             .setApplicationUri(APPLICATION_URI)
             .setApplicationName(LocalizedText.english(APPLICATION_NAME))
-            .setBindAddresses(newArrayList(ip))
+            .setBindAddresses(newArrayList(ENDPOINT_IP))
+            .setEndpointAddresses(newArrayList(ENDPOINT_IP))
             .setBindPort(4840)
             .setBuildInfo(
                 new BuildInfo(
