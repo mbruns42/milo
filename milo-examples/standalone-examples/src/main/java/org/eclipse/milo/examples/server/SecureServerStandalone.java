@@ -56,7 +56,9 @@ public class SecureServerStandalone {
     private static final Pattern IP_ADDR_PATTERN = Pattern.compile(
             "^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
 
-    private static final String IP = "131.234.44.33";
+    private static final String ENDPOINT_IP = System.getenv("OPCUA_SERVER_IP");
+
+    private static final String BIND_IP = "0.0.0.0";
 
     private static final int PORT = 4840;
 
@@ -114,10 +116,10 @@ public class SecureServerStandalone {
                 .setStateName("CA")
                 .setCountryCode("US")
                 .setApplicationUri("urn:eclipse:milo:examples:client")
-                .addIpAddress(IP);
+                .addDnsName("localhost");
 
         // Get as many hostnames and IP addresses as we can listed in the certificate.
-        for (String hostname : HostnameUtil.getHostnames(IP)) {
+        for (String hostname : HostnameUtil.getHostnames(BIND_IP)) {
             if (IP_ADDR_PATTERN.matcher(hostname).matches()) {
                 builder.addIpAddress(hostname);
             } else {
@@ -125,8 +127,8 @@ public class SecureServerStandalone {
             }
         }
         List<String> endpointAddresses = newArrayList();
-        endpointAddresses.addAll(HostnameUtil.getHostnames(IP));
-        logger.info("Hostnames {}", HostnameUtil.getHostnames(IP));
+        endpointAddresses.addAll(HostnameUtil.getHostnames(ENDPOINT_IP));
+        logger.info("Hostnames {}", HostnameUtil.getHostnames(ENDPOINT_IP));
 
         X509Certificate certificate = null;
         try {
@@ -163,7 +165,7 @@ public class SecureServerStandalone {
         OpcUaServerConfig serverConfig = OpcUaServerConfig.builder()
             .setApplicationUri(APPLICATION_URI)
             .setApplicationName(LocalizedText.english(APPLICATION_NAME))
-            .setBindAddresses(newArrayList(IP))
+            .setBindAddresses(newArrayList(BIND_IP))
             .setEndpointAddresses(endpointAddresses)
             .setBindPort(PORT)
             .setBuildInfo(
