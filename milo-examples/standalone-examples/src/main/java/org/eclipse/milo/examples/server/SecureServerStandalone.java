@@ -26,12 +26,11 @@ import java.util.regex.Pattern;
 import com.google.common.collect.ImmutableList;
 import org.eclipse.milo.opcua.sdk.server.OpcUaServer;
 import org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig;
-import org.eclipse.milo.opcua.sdk.server.identity.CompositeValidator;
 import org.eclipse.milo.opcua.sdk.server.identity.UsernameIdentityValidator;
-import org.eclipse.milo.opcua.sdk.server.identity.X509IdentityValidator;
 import org.eclipse.milo.opcua.sdk.server.util.HostnameUtil;
+import org.eclipse.milo.opcua.stack.core.UaException;
+import org.eclipse.milo.opcua.stack.core.application.CertificateValidator;
 import org.eclipse.milo.opcua.stack.core.application.DefaultCertificateManager;
-import org.eclipse.milo.opcua.stack.core.application.DefaultCertificateValidator;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DateTime;
 import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
@@ -143,9 +142,18 @@ public class SecureServerStandalone {
             certificate
         );
 
-        DefaultCertificateValidator certificateValidator = new DefaultCertificateValidator(securityTempDir);
+        CertificateValidator certificateValidator = new CertificateValidator(){
 
-        X509IdentityValidator x509identityValidator = new X509IdentityValidator(c -> true);
+            @Override
+            public void validate(X509Certificate certificate) throws UaException {
+                //Don't do anything
+            }
+
+            @Override
+            public void verifyTrustChain(List<X509Certificate> certificateChain) throws UaException {
+                //Don't do anything
+            }
+        };
 
         UsernameIdentityValidator usernameIdentityValidator = new UsernameIdentityValidator(
                 false,
@@ -159,8 +167,6 @@ public class SecureServerStandalone {
                     return userOk || adminOk;
                 }
         );
-
-        CompositeValidator identityValidator = new CompositeValidator(usernameIdentityValidator, x509identityValidator);
 
         OpcUaServerConfig serverConfig = OpcUaServerConfig.builder()
             .setApplicationUri(APPLICATION_URI)
@@ -177,7 +183,7 @@ public class SecureServerStandalone {
                     "", DateTime.now()))
             .setCertificateManager(certificateManager)
             .setCertificateValidator(certificateValidator)
-            .setIdentityValidator(identityValidator)
+            .setIdentityValidator(usernameIdentityValidator)
             .setProductUri("urn:eclipse:milo:example-server")
             .setSecurityPolicies(
                 EnumSet.of(
