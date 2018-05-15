@@ -108,7 +108,18 @@ public class OpcUaServer {
 
         discoveryServer = new UaTcpStackServer(OpcUaServerConfig.copy(config, b -> {
             String serverName = config.getServerName();
-            b.setServerName(serverName);
+
+            String discoveryServerName = "discovery";
+
+            if (!serverName.isEmpty()) {
+                if (serverName.endsWith("/")) {
+                    discoveryServerName = serverName + discoveryServerName;
+                } else {
+                    discoveryServerName = serverName + "/" + discoveryServerName;
+                }
+            }
+
+            b.setServerName(discoveryServerName);
         }));
 
         stackServer = new UaTcpStackServer(config);
