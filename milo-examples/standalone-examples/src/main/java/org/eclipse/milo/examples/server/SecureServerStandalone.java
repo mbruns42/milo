@@ -157,7 +157,7 @@ public class SecureServerStandalone {
         };
 
         UsernameIdentityValidator usernameIdentityValidator = new UsernameIdentityValidator(
-                false,
+                true,
                 authChallenge -> {
                     String username = authChallenge.getUsername();
                     String password = authChallenge.getPassword();
