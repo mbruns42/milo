@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig.USER_TOKEN_POLICY_ANONYMOUS;
 import static org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig.USER_TOKEN_POLICY_USERNAME;
 import static org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig.USER_TOKEN_POLICY_X509;
 
@@ -187,11 +188,11 @@ public class SecureServerStandalone {
             .setProductUri("urn:eclipse:milo:example-server")
             .setSecurityPolicies(
                 EnumSet.of(
-                    SecurityPolicy.Basic128Rsa15,
-                    SecurityPolicy.Basic256,
+                    SecurityPolicy.None,
                     SecurityPolicy.Basic256Sha256))
             .setUserTokenPolicies(
                 ImmutableList.of(
+                    USER_TOKEN_POLICY_ANONYMOUS,
                     USER_TOKEN_POLICY_USERNAME,
                     USER_TOKEN_POLICY_X509))
             .build();
