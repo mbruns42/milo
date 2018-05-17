@@ -24,7 +24,7 @@ import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 public interface ClientExample {
 
     default String getEndpointUrl() {
-        return "opc.tcp://localhost:12686/example";
+        return "opc.tcp://virtual-factory-iem-fraunhofer.cs.uni-paderborn.de:4840";
     }
 
     default SecurityPolicy getSecurityPolicy() {
