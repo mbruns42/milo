@@ -16,7 +16,7 @@ Mailing list: https://dev.eclipse.org/mailman/listinfo/milo-dev
 
 ### Building Milo
 
-From the project root, run `mvn clean install`.
+**Using JDK 8**, run `mvn clean install` from the project root.
 
 ### Releases
 
@@ -70,3 +70,41 @@ If you want to reference a `SNAPSHOT` release a reference to the Sonatype snapsh
 </repository>
 ```
 
+## High Level Roadmap
+### Version 0.3
+#### Stack
+- HTTPS transport
+
+#### Server
+- Events
+- Instantiation of Complex Object and Variable instances (NodeFactory)
+
+
+### Version 0.4
+#### Server
+- Diagnostic Nodes
+
+
+### Version 1.0
+- Auditing Support?
+- ???
+
+
+### Version 2.0
+#### General
+- Java 9 + Modularization
+
+#### Stack
+- UA 1.04
+
+#### Client
+- UA 1.04
+
+#### Server
+- UA 1.04
+
+
+### Future
+- Javascript/NodeJS Bindings for GraalVM?
+- Python Bindings for GraalVM?
+- History "Connectors"?
